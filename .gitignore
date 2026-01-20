@@ -1,0 +1,6 @@
+*.o
+*.exe
+.vscode
+compile_commands.json
+build/*
+!build/README.md
