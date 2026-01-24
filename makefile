@@ -7,11 +7,22 @@ CFLAGS_RELEASE := -Wall -Wextra -O3
 # Compiler flags for debug mode
 CFLAGS_DEBUG := -Wall -Wextra -g
 
-# Library paths
-LIBRARY_PATHS :=
+ifeq ($(OS), Windows_NT)	
+	# Library paths
+	LIBRARY_PATHS := -L./lib/windows
+	# Linker flags
+	LDFLAGS := -lglfw3dll -lopengl32
+	# Target directory
+	TARGET_DIR := build/windows
+else
+	# Library paths
+	LIBRARY_PATHS := -L./lib/linux
+	# Linker flags
+	LDFLAGS := -lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl -lm
+	# Target directory
+	TARGET_DIR := build/linux
+endif
 
-# Linker flags
-LDFLAGS :=
 
 # Include directories
 INCLUDES := -I./include
@@ -28,8 +39,7 @@ OBJ_DIR := obj
 # Object files
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-# Target directory
-TARGET_DIR := build
+
 
 # Binary output
 TARGET := main
@@ -57,10 +67,9 @@ $(TARGET): $(OBJS)
 clean:
 ifeq ($(OS),Windows_NT)
 	@del /Q $(TARGET_DIR)/$(TARGET).exe 2>NUL || exit 0
-	@del /Q $(TARGET_DIR)/$(TARGET) 2>NUL || exit 0
 	@del /Q $(OBJ_DIR)\* 2>NUL || exit 0
 else
-	rm -f $(OBJ_DIR)/*.o $(TARGET_DIR)/$(TARGET) $(TARGET_DIR)/$(TARGET).exe
+	rm -f $(OBJ_DIR)/*.o $(TARGET_DIR)/$(TARGET)
 endif
 
 bear: clean
