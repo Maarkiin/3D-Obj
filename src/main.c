@@ -105,21 +105,6 @@ model_t *createModel(model_t *m, char* FILEPATH)
         model->heap = 0;
     }
 
-    /*TODO: pre-get float array sizes to malloc // or do a dynamic array?*/
-
-    /* temp alloc for cube */
-    model->pre.verts_size = 8;
-    model->pre.texrs_size = 6;
-    model->pre.norms_size = 14;
-    model->pre.faces_size = 12;
-
-
-    model->pre.verts = malloc(3*sizeof(float)*model->pre.verts_size);
-    model->pre.norms = malloc(3*sizeof(float)*model->pre.texrs_size);
-    model->pre.texrs = malloc(2*sizeof(float)*model->pre.norms_size);
-    model->pre.faces = malloc(3*3*sizeof(uint)*model->pre.faces_size);
-    /*                     */
-
     model->pre.verts_size = 0;
     model->pre.texrs_size = 0;
     model->pre.norms_size = 0;
@@ -129,6 +114,45 @@ model_t *createModel(model_t *m, char* FILEPATH)
     const size_t buf_size = 512;
     char buf[buf_size];
 
+    while (fgets(buf, buf_size, fp))
+    {
+        if(strstar(buf, "v "))
+        {
+            model->pre.verts_size++;
+        }
+        if(strstar(buf, "vn "))
+        {
+            model->pre.texrs_size++;
+        }
+        if(strstar(buf, "vt "))
+        {
+            model->pre.norms_size++;
+        }
+        if(strstar(buf, "f "))
+        {
+            model->pre.faces_size++;
+        }
+    }
+
+    /* temp alloc for cube */
+    // model->pre.verts_size = 8;
+    // model->pre.texrs_size = 6;
+    // model->pre.norms_size = 14;
+    // model->pre.faces_size = 12;
+    /*                     */
+
+
+    model->pre.verts = malloc(3*sizeof(float)*model->pre.verts_size);
+    model->pre.norms = malloc(3*sizeof(float)*model->pre.texrs_size);
+    model->pre.texrs = malloc(2*sizeof(float)*model->pre.norms_size);
+    model->pre.faces = malloc(3*3*sizeof(uint)*model->pre.faces_size);
+
+    model->pre.verts_size = 0;
+    model->pre.texrs_size = 0;
+    model->pre.norms_size = 0;
+    model->pre.faces_size = 0;
+
+    fseek(fp, 0, SEEK_SET);
     while (fgets(buf, buf_size, fp))
     {
         if(strstar(buf, "v "))
@@ -275,10 +299,11 @@ int main(int argc, char **argv)
     glViewport(0, 0, 800, 600);
     // glEnable(GL_FRAMEBUFFER_SRGB);
 
-    model_t cube;
-    createModel(&cube, "res/obj/cube.obj");
-    cube.Shader = createShader("res/shaders/default");
-    
+    //model_t cube;
+    //createModel(&cube, "res/obj/cube.obj");
+    model_t *mill = createModel(NULL, "res/obj/cube.obj");
+    mill->Shader = createShader("res/shaders/default");
+
 
 
 
@@ -297,14 +322,14 @@ int main(int argc, char **argv)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        drawModel(&cube);
+        drawModel(mill);
 
         /*       */
         glfwSwapBuffers(w);
         glfwPollEvents();
     }
 
-    deleteModel(&cube);
+    deleteModel(mill);
     glfwTerminate();
     return 0;
 }
