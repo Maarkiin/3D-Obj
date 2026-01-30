@@ -1,15 +1,61 @@
 #ifndef utilsH
 #define utilsH
 
+#include <stdint.h>
+
 #define UNUSED __attribute__((unused))
 #define uint unsigned int
+
+#define DEF_VEC2(T, n) \
+typedef struct vec2##n { \
+    union { \
+        struct { \
+            T x; \
+            T y; \
+        }; \
+        T value[2]; \
+    }; \
+} vec2##n##_t; \
+static inline vec2##n##_t vec2##n##_c(T x, T y) { return ((vec2##n##_t){ .value = {x, y}}); }
+
+#define DEF_VEC3(T, n) \
+typedef struct vec3##n { \
+    union { \
+        struct { \
+            T x; \
+            T y; \
+            T z; \
+        }; \
+        T value[3]; \
+    }; \
+} vec3##n##_t; \
+static inline vec3##n##_t vec3##n##_c(T x, T y, T z) { return ((vec3##n##_t){ .value = {x, y, z}}); }
+
+DEF_VEC2(int,   i);
+DEF_VEC2(float, f);
+DEF_VEC3(int,   i);
+DEF_VEC3(float, f);
+DEF_VEC3(uint32_t, u32);
+
+typedef struct {
+    union {
+        struct {
+            int x;
+            int y;
+            int z;
+            int w;
+        };
+        int value[4];
+    };
+} vec4i_t;
+static inline vec4i_t vec4i_c(int x, int y, int z, int w) { return ((vec4i_t){ .value = {x, y, z, w}}); }
 
 static inline void printargs(int argc, char** argv, char* title)
 {
     int titlelen = 0;
     if (title) titlelen = strlen(title);
-    const char t = 205; /*═*/
-    const char s = 186; /*║*/
+    const unsigned char t = 205; /*═*/
+    const unsigned char s = 186; /*║*/
     int max = 0, m;
     for (int i = 0; i < argc; ++i)
     {
